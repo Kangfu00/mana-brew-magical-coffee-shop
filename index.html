@@ -1,16 +1,332 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mana Brew: Magical Coffee Shop</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Cinzel:wght@400;700;900&family=Niramit:wght@300;400;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./index.tsx"></script> 
-  </body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 1. CSS Styles (ตกแต่ง) --- */
+        :root {
+            --forest-900: #0a1f1c;
+            --forest-800: #112e29;
+            --gold: #d4af37;
+            --gold-bright: #ffd700;
+            --parchment: #f0e6d2;
+            --mana-blue: #00ffff;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--forest-900);
+            color: var(--parchment);
+            font-family: 'Niramit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Cinzel', serif; }
+        .font-cursive { font-family: 'Charm', cursive; }
+
+        /* Navigation */
+        nav {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 31, 28, 0.9);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            box-sizing: border-box;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .logo {
+            color: var(--gold);
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links a {
+            color: var(--parchment);
+            text-decoration: none;
+            margin-left: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .nav-links a:hover { color: var(--gold); }
+        
+        .btn-gold {
+            background: var(--gold);
+            color: var(--forest-900);
+            padding: 10px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-bright);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a453e 0%, var(--forest-900) 70%);
+            position: relative;
+            padding: 20px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin: 0;
+            color: var(--parchment);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .hero p.tagline {
+            font-size: 2rem;
+            color: var(--gold);
+            margin: 10px 0 30px;
+        }
+
+        /* Features / AI Oracle */
+        .oracle-section {
+            padding: 80px 20px;
+            text-align: center;
+            background: var(--forest-800);
+        }
+
+        .crystal-ball {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(0,255,255,0.4), rgba(0,0,50,0.8));
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            box-shadow: 0 0 50px var(--mana-blue);
+            animation: pulse 3s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            font-family: 'Cinzel', serif;
+            position: relative;
+        }
+        
+        .prediction-text {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 30px var(--mana-blue); }
+            50% { box-shadow: 0 0 60px var(--mana-blue), 0 0 100px rgba(0,255,255,0.2); }
+            100% { box-shadow: 0 0 30px var(--mana-blue); }
+        }
+
+        /* Menu Grid */
+        .menu-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .menu-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(212,175,55,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--gold);
+        }
+
+        .stat-bar {
+            background: rgba(255,255,255,0.1);
+            height: 5px;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .stat-fill {
+            height: 100%;
+            background: var(--gold);
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(212,175,55,0.1);
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><i class="fas fa-leaf"></i> MANA BREW</div>
+        <div class="nav-links">
+            <a href="#oracle">The Oracle</a>
+            <a href="#menu">Potions</a>
+            <button class="btn-gold" onclick="alert('ระบบ Pre-order จะเปิดใช้งานเร็วๆ นี้!')">Pre-Order</button>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div style="border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; color: var(--gold); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 20px;">
+            EST. ANCIENT TIMES
+        </div>
+        <h1>MANA BREW</h1>
+        <p class="tagline font-cursive">"จิบรสชาติแห่งป่าศักดิ์สิทธิ์ เติมมานาให้ชีวิต"</p>
+        <p style="max-width: 600px; margin: 0 auto 40px; opacity: 0.8;">
+            ไม่ต้องร่ายเวทย์รอคิว สั่งจองความสดชื่นล่วงหน้าได้ทันที <br>
+            ระบบ AI อัจฉริยะพร้อมปรุงยาที่เหมาะกับธาตุของคุณ
+        </p>
+        <button class="btn-gold" style="padding: 15px 40px; font-size: 1.2rem;">ร่ายคาถาสั่งเครื่องดื่ม</button>
+    </section>
+
+    <section id="oracle" class="oracle-section">
+        <div style="color: var(--gold); letter-spacing: 4px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">SMART BUSINESS</div>
+        <h2 style="font-size: 2.5rem; margin-bottom: 40px;">ลูกแก้วพยากรณ์ (AI Recommender)</h2>
+        
+        <div class="crystal-ball" id="crystalBall">
+            <span id="oracleContent"><i class="fas fa-question"></i></span>
+        </div>
+        
+        <p>ระบบกำลังตรวจจับค่าพลังงานของคุณ...</p>
+        <button class="btn-gold" onclick="predictMenu()" style="margin-top: 20px; background: transparent; border: 1px solid var(--gold); color: var(--gold);">
+            ทำนายเมนูที่เหมาะกับฉัน
+        </button>
+    </section>
+
+    <section id="menu" class="menu-section">
+        <h2 style="text-align: center; font-size: 2.5rem; color: var(--gold);">เมนูโพชั่น (Menu)</h2>
+        <div class="menu-grid">
+            <div class="menu-card">
+                <div class="menu-icon"><i class="fas fa-coffee"></i></div>
+                <h3>Ancient Root (Americano)</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7;">สกัดรากไม้บรรพกาล เข้มข้น ปลุกวิญญาณ</p>
+                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
+                    <span>Intelligence +10</span>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
+                </div>
+                <h4 style="color: var(--gold); margin-top: 15px;">65 Gold</h4>
+            </div>
+            
+            <div class="menu-card">
+                <div class="menu-icon"><i class="fas fa-mug-hot"></i></div>
+                <h3>Moonlight Mist (Latte)</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7;">ฟองนมนุ่มดุจหมอกจางยามค่ำคืน</p>
+                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
+                    <span>Calmness +20</span>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 95%;"></div></div>
+                </div>
+                <h4 style="color: var(--gold); margin-top: 15px;">75 Gold</h4>
+            </div>
+
+            <div class="menu-card">
+                <div class="menu-icon"><i class="fas fa-leaf"></i></div>
+                <h3>Emerald Guardian (Matcha)</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7;">ใบชาจากยอดดอยที่เอลฟ์ดูแล</p>
+                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
+                    <span>Wisdom +15</span>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 70%;"></div></div>
+                </div>
+                <h4 style="color: var(--gold); margin-top: 15px;">80 Gold</h4>
+            </div>
+            
+             <div class="menu-card">
+                <div class="menu-icon"><i class="fas fa-flask"></i></div>
+                <h3>Mana Potion (Blue Soda)</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7;">น้ำสีฟ้าเรืองแสง ฟื้นฟูค่ามานาเต็มเปี่ยม</p>
+                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
+                    <span>MP Recovery 100%</span>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 100%; background: var(--mana-blue);"></div></div>
+                </div>
+                <h4 style="color: var(--gold); margin-top: 15px;">60 Gold</h4>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 MANA BREW - Magical Coffee Shop Simulation</p>
+        <p>AIE211 Midterm Project</p>
+    </footer>
+
+    <script>
+        // --- 2. JavaScript Logic (ส่วนสมอง) ---
+        
+        function predictMenu() {
+            const menus = [
+                { name: "Moonlight Mist", desc: "ช่วงนี้คุณดูเครียดๆ รับลาเต้อุ่นๆ ไหม?" },
+                { name: "Ancient Root", desc: "ต้องการสมาธิอ่านหนังสือใช่ไหม? รับอเมริกาโน่เลย" },
+                { name: "Mana Potion", desc: "พลังงานต่ำ? เติมความสดชื่นด้วยโซดาสีฟ้า!" }
+            ];
+            
+            // สุ่มเมนู (จำลอง AI)
+            const randomMenu = menus[Math.floor(Math.random() * menus.length)];
+            
+            const ball = document.getElementById('crystalBall');
+            const content = document.getElementById('oracleContent');
+            
+            // เอฟเฟกต์หมุนติ้ว
+            content.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            setTimeout(() => {
+                content.innerHTML = `<div class="prediction-text" style="opacity: 1; font-size: 0.8rem;">
+                    <strong>AI แนะนำ:</strong><br>${randomMenu.name}<br>
+                    <span style="font-size: 0.7rem; color: var(--gold);">${randomMenu.desc}</span>
+                </div>`;
+            }, 1000);
+        }
+    </script>
+</body>
 </html>
