@@ -1,332 +1,596 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mana Brew: Magical Coffee Shop</title>
-    <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Cinzel:wght@400;700;900&family=Niramit:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <style>
-        /* --- 1. CSS Styles (ตกแต่ง) --- */
-        :root {
-            --forest-900: #0a1f1c;
-            --forest-800: #112e29;
-            --gold: #d4af37;
-            --gold-bright: #ffd700;
-            --parchment: #f0e6d2;
-            --mana-blue: #00ffff;
-        }
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Charm:wght@400;700&family=Niramit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['"Cinzel"', 'serif'],
+                        cursive: ['"Charm"', 'cursive'],
+                        sans: ['"Niramit"', 'sans-serif'],
+                    },
+                    colors: {
+                        forest: {
+                            900: '#0B1A13',
+                            800: '#152B21',
+                            700: '#1F3D2F',
+                            DEFAULT: '#2D5A47',
+                            light: '#4A8B6F',
+                        },
+                        mana: {
+                            blue: '#00D2FF',
+                            glow: '#A0E9FF',
+                        },
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            bright: '#F9D71C',
+                            dark: '#996515',
+                        },
+                        parchment: {
+                            DEFAULT: '#F4EBD0',
+                            dark: '#E2D1A6',
+                        }
+                    },
+                    animation: {
+                        'float-particle': 'float-particle 10s linear infinite',
+                        'fade-in': 'fade-in 0.5s ease-out forwards',
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'float-particle': {
+                            '0%': { transform: 'translateY(0) translateX(0)', opacity: 0 },
+                            '10%': { opacity: 0.5 },
+                            '90%': { opacity: 0.5 },
+                            '100%': { transform: 'translateY(-100vh) translateX(20px)', opacity: 0 },
+                        },
+                        'fade-in': {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+                            '50%': { opacity: 1, transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
         body {
-            margin: 0;
-            background-color: var(--forest-900);
-            color: var(--parchment);
-            font-family: 'Niramit', sans-serif;
+            background-color: #0B1A13;
+            color: #F4EBD0;
             overflow-x: hidden;
         }
-
-        h1, h2, h3 { font-family: 'Cinzel', serif; }
-        .font-cursive { font-family: 'Charm', cursive; }
-
-        /* Navigation */
-        nav {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 31, 28, 0.9);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            box-sizing: border-box;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        .glass-panel {
+            background: rgba(21, 43, 33, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
-
-        .logo {
-            color: var(--gold);
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .card-forest {
+            background: rgba(21, 43, 33, 0.5);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
         }
-        
-        .nav-links a {
-            color: var(--parchment);
-            text-decoration: none;
-            margin-left: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 12px;
-            font-weight: bold;
-            transition: 0.3s;
+        .card-forest:hover {
+            border-color: rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
         }
-        
-        .nav-links a:hover { color: var(--gold); }
-        
-        .btn-gold {
-            background: var(--gold);
-            color: var(--forest-900);
-            padding: 10px 25px;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-        }
-
-        .btn-gold:hover {
-            background: var(--gold-bright);
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.6);
-        }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: radial-gradient(circle at center, #1a453e 0%, var(--forest-900) 70%);
-            position: relative;
-            padding: 20px;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin: 0;
-            color: var(--parchment);
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .hero p.tagline {
-            font-size: 2rem;
-            color: var(--gold);
-            margin: 10px 0 30px;
-        }
-
-        /* Features / AI Oracle */
-        .oracle-section {
-            padding: 80px 20px;
-            text-align: center;
-            background: var(--forest-800);
-        }
-
-        .crystal-ball {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(0,255,255,0.4), rgba(0,0,50,0.8));
-            border-radius: 50%;
-            margin: 0 auto 30px;
-            box-shadow: 0 0 50px var(--mana-blue);
-            animation: pulse 3s infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.5rem;
+        .btn-crystal {
+            background: linear-gradient(135deg, #152B21 0%, #0B1A13 100%);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: #A0E9FF;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
             font-family: 'Cinzel', serif;
-            position: relative;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
         }
-        
-        .prediction-text {
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 10px;
-            opacity: 0;
-            transition: opacity 1s;
+        .btn-crystal:hover {
+            border-color: #00D2FF;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.3);
+            transform: scale(1.02);
         }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 30px var(--mana-blue); }
-            50% { box-shadow: 0 0 60px var(--mana-blue), 0 0 100px rgba(0,255,255,0.2); }
-            100% { box-shadow: 0 0 30px var(--mana-blue); }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: #F4EBD0;
+            margin-bottom: 1rem;
         }
-
-        /* Menu Grid */
-        .menu-section {
-            padding: 80px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        @media (min-width: 768px) {
+            .section-title { font-size: 3.5rem; }
         }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .menu-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(212,175,55,0.2);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--gold);
-            background: rgba(255,255,255,0.1);
-        }
-
-        .menu-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--gold);
-        }
-
-        .stat-bar {
-            background: rgba(255,255,255,0.1);
-            height: 5px;
-            border-radius: 5px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        .stat-fill {
-            height: 100%;
-            background: var(--gold);
-        }
-
-        /* Footer */
-        footer {
-            padding: 40px;
-            text-align: center;
-            border-top: 1px solid rgba(212,175,55,0.1);
-            font-size: 0.8rem;
-            opacity: 0.6;
-        }
-
     </style>
 </head>
-<body>
+<body class="min-h-screen selection:bg-gold selection:text-forest-900">
 
-    <nav>
-        <div class="logo"><i class="fas fa-leaf"></i> MANA BREW</div>
-        <div class="nav-links">
-            <a href="#oracle">The Oracle</a>
-            <a href="#menu">Potions</a>
-            <button class="btn-gold" onclick="alert('ระบบ Pre-order จะเปิดใช้งานเร็วๆ นี้!')">Pre-Order</button>
+    <!-- Global Particles -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-[60] overflow-hidden opacity-30"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-transparent py-6">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+                <div class="w-10 h-10 bg-gold rounded-lg flex items-center justify-center text-forest-900 font-display font-bold text-2xl shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform">
+                    MB
+                </div>
+                <span class="font-display font-bold text-xl tracking-widest text-gold hidden sm:block">
+                    MANA BREW
+                </span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-xs font-bold tracking-[0.2em] uppercase">
+                <a href="#oracle" class="hover:text-gold transition-colors">The Oracle</a>
+                <a href="#menu" class="hover:text-gold transition-colors">Potions</a>
+                <a href="#guild" class="hover:text-gold transition-colors">Guild</a>
+                <button onclick="document.getElementById('menu').scrollIntoView({behavior: 'smooth'})" class="px-6 py-2 bg-gold text-forest-900 rounded-full hover:bg-gold-bright transition-all shadow-[0_0_10px_rgba(212,175,55,0.3)]">
+                    Pre-Order
+                </button>
+            </div>
+
+            <button class="md:hidden text-gold p-2" id="mobile-menu-btn">
+                <i data-lucide="menu"></i>
+            </button>
         </div>
     </nav>
 
-    <section class="hero">
-        <div style="border: 1px solid var(--gold); padding: 5px 15px; border-radius: 20px; color: var(--gold); font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 20px;">
-            EST. ANCIENT TIMES
-        </div>
-        <h1>MANA BREW</h1>
-        <p class="tagline font-cursive">"จิบรสชาติแห่งป่าศักดิ์สิทธิ์ เติมมานาให้ชีวิต"</p>
-        <p style="max-width: 600px; margin: 0 auto 40px; opacity: 0.8;">
-            ไม่ต้องร่ายเวทย์รอคิว สั่งจองความสดชื่นล่วงหน้าได้ทันที <br>
-            ระบบ AI อัจฉริยะพร้อมปรุงยาที่เหมาะกับธาตุของคุณ
-        </p>
-        <button class="btn-gold" style="padding: 15px 40px; font-size: 1.2rem;">ร่ายคาถาสั่งเครื่องดื่ม</button>
-    </section>
-
-    <section id="oracle" class="oracle-section">
-        <div style="color: var(--gold); letter-spacing: 4px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px;">SMART BUSINESS</div>
-        <h2 style="font-size: 2.5rem; margin-bottom: 40px;">ลูกแก้วพยากรณ์ (AI Recommender)</h2>
-        
-        <div class="crystal-ball" id="crystalBall">
-            <span id="oracleContent"><i class="fas fa-question"></i></span>
-        </div>
-        
-        <p>ระบบกำลังตรวจจับค่าพลังงานของคุณ...</p>
-        <button class="btn-gold" onclick="predictMenu()" style="margin-top: 20px; background: transparent; border: 1px solid var(--gold); color: var(--gold);">
-            ทำนายเมนูที่เหมาะกับฉัน
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-forest-900 hidden flex-col items-center justify-center gap-8 text-xl font-display">
+        <button class="absolute top-6 right-6 text-gold" id="mobile-menu-close">
+            <i data-lucide="x"></i>
         </button>
-    </section>
+        <a href="#oracle" class="mobile-link hover:text-gold transition-colors uppercase tracking-widest">The Oracle</a>
+        <a href="#menu" class="mobile-link hover:text-gold transition-colors uppercase tracking-widest">Potions</a>
+        <a href="#guild" class="mobile-link hover:text-gold transition-colors uppercase tracking-widest">Guild</a>
+        <button onclick="document.getElementById('menu').scrollIntoView({behavior: 'smooth'})" class="px-8 py-3 bg-gold text-forest-900 rounded-full shadow-lg font-bold uppercase tracking-widest">
+            Order Now
+        </button>
+    </div>
 
-    <section id="menu" class="menu-section">
-        <h2 style="text-align: center; font-size: 2.5rem; color: var(--gold);">เมนูโพชั่น (Menu)</h2>
-        <div class="menu-grid">
-            <div class="menu-card">
-                <div class="menu-icon"><i class="fas fa-coffee"></i></div>
-                <h3>Ancient Root (Americano)</h3>
-                <p style="font-size: 0.9rem; opacity: 0.7;">สกัดรากไม้บรรพกาล เข้มข้น ปลุกวิญญาณ</p>
-                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
-                    <span>Intelligence +10</span>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
-                </div>
-                <h4 style="color: var(--gold); margin-top: 15px;">65 Gold</h4>
+    <!-- Hero Section -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div id="forest-canvas-container" class="absolute inset-0 w-full h-full"></div>
+        
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-forest-900/40 via-forest-900/60 to-forest-900"></div>
+
+        <div class="relative z-10 container mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2 mb-6 px-4 py-1 border border-gold/30 text-gold text-[10px] tracking-[0.3em] uppercase font-bold rounded-full backdrop-blur-md bg-forest-900/30">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Established in Ancient Times
             </div>
             
-            <div class="menu-card">
-                <div class="menu-icon"><i class="fas fa-mug-hot"></i></div>
-                <h3>Moonlight Mist (Latte)</h3>
-                <p style="font-size: 0.9rem; opacity: 0.7;">ฟองนมนุ่มดุจหมอกจางยามค่ำคืน</p>
-                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
-                    <span>Calmness +20</span>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 95%;"></div></div>
-                </div>
-                <h4 style="color: var(--gold); margin-top: 15px;">75 Gold</h4>
-            </div>
-
-            <div class="menu-card">
-                <div class="menu-icon"><i class="fas fa-leaf"></i></div>
-                <h3>Emerald Guardian (Matcha)</h3>
-                <p style="font-size: 0.9rem; opacity: 0.7;">ใบชาจากยอดดอยที่เอลฟ์ดูแล</p>
-                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
-                    <span>Wisdom +15</span>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 70%;"></div></div>
-                </div>
-                <h4 style="color: var(--gold); margin-top: 15px;">80 Gold</h4>
-            </div>
+            <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-parchment drop-shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                MANA BREW
+            </h1>
             
-             <div class="menu-card">
-                <div class="menu-icon"><i class="fas fa-flask"></i></div>
-                <h3>Mana Potion (Blue Soda)</h3>
-                <p style="font-size: 0.9rem; opacity: 0.7;">น้ำสีฟ้าเรืองแสง ฟื้นฟูค่ามานาเต็มเปี่ยม</p>
-                <div style="margin-top: 15px; text-align: left; font-size: 0.8rem;">
-                    <span>MP Recovery 100%</span>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 100%; background: var(--mana-blue);"></div></div>
+            <p class="font-cursive text-2xl md:text-4xl text-gold/90 mb-8 italic">
+                "จิบรสชาติแห่งป่าศักดิ์สิทธิ์ เติมมานาให้ชีวิต"
+            </p>
+            
+            <p class="max-w-2xl mx-auto text-lg text-parchment/70 font-light leading-relaxed mb-12">
+                ไม่ต้องร่ายเวทย์รอคิว สั่งจองความสดชื่นล่วงหน้าได้ทันที <br/>
+                สัมผัสพลังงานจากพงไพรในทุกหยดที่ดื่ม
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-6 items-center sm:items-end">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="animate-bounce hidden sm:block">
+                        <i data-lucide="arrow-down" class="text-gold/50"></i>
+                    </div>
+                    <button onclick="document.getElementById('menu').scrollIntoView({behavior: 'smooth'})" class="relative px-10 py-4 font-display font-bold text-forest-900 bg-gold rounded-xl transition-all duration-300 hover:bg-gold-bright hover:scale-110 shadow-[0_0_30px_rgba(212,175,55,0.6)] hover:shadow-[0_0_50px_rgba(212,175,55,0.8)]">
+                        ร่ายคาถาสั่งเครื่องดื่ม (Pre-Order)
+                    </button>
                 </div>
-                <h4 style="color: var(--gold); margin-top: 15px;">60 Gold</h4>
+                <button onclick="document.getElementById('oracle').scrollIntoView({behavior: 'smooth'})" class="px-10 py-4 border-2 border-gold/40 rounded-xl font-display font-bold text-gold hover:bg-gold/10 transition-all backdrop-blur-sm">
+                    ปรึกษาลูกแก้วพยากรณ์
+                </button>
             </div>
         </div>
-    </section>
+    </header>
 
-    <footer>
-        <p>© 2024 MANA BREW - Magical Coffee Shop Simulation</p>
-        <p>AIE211 Midterm Project</p>
+    <main class="relative z-10">
+        <!-- Oracle Section -->
+        <section id="oracle" class="py-32 bg-forest-900 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                <div class="w-[500px] h-[500px] rounded-full bg-mana-blue blur-[150px] absolute -top-64 -left-64"></div>
+                <div class="w-[500px] h-[500px] rounded-full bg-gold blur-[150px] absolute -bottom-64 -right-64"></div>
+            </div>
+            
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <span class="text-xs font-bold tracking-[0.4em] text-gold uppercase mb-4 block">Smart Business</span>
+                    <h2 class="section-title">ลูกแก้วพยากรณ์</h2>
+                    <div class="w-24 h-1 bg-gold mx-auto rounded-full opacity-50"></div>
+                </div>
+                
+                <div class="card-forest max-w-4xl mx-auto overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="relative group cursor-pointer" id="crystal-ball-container">
+                            <div id="crystal-ball-canvas" class="w-full h-64 md:h-96"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <div class="bg-forest-900/80 px-4 py-2 rounded-full border border-gold/50 text-gold text-xs font-bold uppercase tracking-widest">
+                                    แตะเพื่อสุ่มโชคชะตา
+                                </div>
+                            </div>
+                            <div id="oracle-loader" class="absolute inset-0 flex items-center justify-center bg-forest-900/40 backdrop-blur-sm rounded-full hidden">
+                                <i data-lucide="loader-2" class="w-12 h-12 text-mana-blue animate-spin"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4">
+                            <h2 class="font-display text-3xl text-gold mb-4 flex items-center gap-3">
+                                <i data-lucide="wand-2" class="text-gold"></i> ลูกแก้วพยากรณ์
+                            </h2>
+                            <p class="text-parchment/80 mb-6 font-cursive text-xl">
+                                "วันนี้ดวงชะตา (Data) ของท่านเหมาะกับสิ่งใด?"
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <button id="oracle-btn" class="w-full btn-crystal flex items-center justify-center gap-2">
+                                    แตะลูกแก้วเพื่อร่ายคำทำนาย
+                                </button>
+                            </div>
+                            
+                            <div id="oracle-result" class="mt-8 p-6 bg-forest-900/80 rounded-xl border border-mana-blue/30 hidden animate-fade-in">
+                                <p id="oracle-prediction" class="text-mana-glow text-lg italic mb-4 leading-relaxed"></p>
+                                <div id="oracle-item" class="flex items-center gap-4 p-3 bg-gold/10 rounded-lg border border-gold/20">
+                                    <div class="w-12 h-12 rounded-full overflow-hidden border border-gold/50">
+                                        <img id="oracle-item-img" src="" alt="" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gold font-bold uppercase tracking-widest">คำแนะนำจากดวงดาว</p>
+                                        <p id="oracle-item-name" class="font-display text-lg"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu" class="py-32 bg-forest-800/30 border-y border-gold/10">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-20">
+                    <span class="text-xs font-bold tracking-[0.4em] text-gold uppercase mb-4 block">The Collection</span>
+                    <h2 class="font-display text-4xl md:text-6xl text-parchment mb-4">เมนูโพชั่น</h2>
+                    <p class="text-parchment/60 max-w-2xl mx-auto">
+                        เครื่องดื่มทุกแก้วปรุงด้วยวัตถุดิบจากป่าลึก ผ่านการร่ายมนตร์เพื่อดึงรสชาติที่แท้จริงออกมา
+                    </p>
+                </div>
+                
+                <div id="menu-container"></div>
+            </div>
+        </section>
+
+        <!-- Guild Section -->
+        <section id="guild" class="py-32 relative overflow-hidden">
+            <div class="container mx-auto px-6">
+                <div class="max-w-4xl mx-auto bg-parchment p-8 md:p-16 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative">
+                    <div class="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+                    <div class="absolute top-4 left-4 right-4 bottom-4 border-2 border-forest-900/20 pointer-events-none"></div>
+                    
+                    <div class="relative z-10 text-forest-900 text-center">
+                        <div class="flex justify-center mb-8">
+                            <i data-lucide="shield-check" class="w-16 h-16 text-gold-dark"></i>
+                        </div>
+                        
+                        <h2 class="font-display text-4xl md:text-5xl mb-4">ลงนามพันธสัญญาแห่งป่า</h2>
+                        <p class="font-cursive text-2xl mb-12 text-forest-700">
+                            "เข้าร่วมกิลด์นักผจญภัย เพื่อรับสิทธิพิเศษเหนือใคร"
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 text-left mb-12">
+                            <div class="space-y-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
+                                        <i data-lucide="sparkles" class="text-gold-dark w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold uppercase tracking-wider text-sm">Welcome Gift</h4>
+                                        <p class="text-sm text-forest-700">รับฟรี! เหรียญทองส่วนลด 15 Gold สำหรับภารกิจแรก</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
+                                        <i data-lucide="users" class="text-gold-dark w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold uppercase tracking-wider text-sm">Guild Access</h4>
+                                        <p class="text-sm text-forest-700">สะสมคะแนนเพื่อเลื่อนระดับนักผจญภัย รับเมนูลับเฉพาะกิลด์</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <form class="space-y-4" onsubmit="event.preventDefault(); alert('ลงนามสำเร็จ! ยินดีต้อนรับสู่กิลด์');">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] mb-2">ชื่อนักผจญภัย (Name)</label>
+                                    <input type="text" placeholder="ระบุชื่อของคุณ..." class="w-full bg-transparent border-b-2 border-forest-900/30 py-2 focus:outline-none focus:border-gold-dark transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] mb-2">หินสื่อสาร (Line ID / Tel)</label>
+                                    <input type="text" placeholder="ช่องทางติดต่อ..." class="w-full bg-transparent border-b-2 border-forest-900/30 py-2 focus:outline-none focus:border-gold-dark transition-colors">
+                                </div>
+                                <button class="w-full mt-6 py-4 bg-forest-900 text-parchment font-display font-bold tracking-widest hover:bg-forest-800 transition-colors flex items-center justify-center gap-2">
+                                    ลงนาม (REGISTER) <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-16 bg-forest-900 border-t border-gold/10">
+        <div class="container mx-auto px-6 text-center">
+            <div class="w-12 h-12 bg-gold mx-auto rounded-lg flex items-center justify-center text-forest-900 font-display font-bold text-2xl mb-6">
+                MB
+            </div>
+            <p class="font-display text-gold tracking-widest mb-4">MANA BREW</p>
+            <p class="text-parchment/40 text-sm max-w-md mx-auto mb-8">
+                ตั้งอยู่ในโพรงต้นไม้ใหญ่ใจกลางป่าเวทมนตร์ <br>
+                เปิดให้บริการตั้งแต่แสงแรกจนถึงแสงสุดท้ายของวัน
+            </p>
+            <div class="flex justify-center gap-6 text-parchment/60">
+                <a href="#" class="hover:text-gold transition-colors">Instagram</a>
+                <a href="#" class="hover:text-gold transition-colors">Facebook</a>
+                <a href="#" class="hover:text-gold transition-colors">Line Official</a>
+            </div>
+            <p class="mt-12 text-[10px] text-parchment/20 uppercase tracking-[0.3em]">
+                © 2024 Mana Brew Coffee & Magic. All Rights Reserved.
+            </p>
+        </div>
     </footer>
 
     <script>
-        // --- 2. JavaScript Logic (ส่วนสมอง) ---
+        // --- DATA ---
+        const menuItems = [
+            { id: 'ancient-root', name: 'Ancient Root Extract', thaiName: 'สกัดรากไม้บรรพกาล', category: 'Potion of Awakening', realName: 'Iced Americano', description: 'สกัดจากรากไม้ดำในป่าลึก เข้มข้น ขมลึก ปลุกวิญญาณที่หลับใหลให้ตื่นเต็มตา', benefit: 'Intelligence +10 (เหมาะกับคนอ่านหนังสือสอบ)', price: 65, image: 'https://images.unsplash.com/photo-1551030173-122aabc4489c?auto=format&fit=crop&q=80&w=400&h=500', icon: 'zap' },
+            { id: 'moonlight-mist', name: 'Moonlight Mist', thaiName: 'หมอกแสงจันทร์', category: 'Potion of Awakening', realName: 'Latte', description: 'กาแฟผสมนมฟองนุ่มขาวนวล ดุจหมอกจางๆ ที่ปกคลุมป่าเอลฟ์ยามค่ำคืน รสละมุนลิ้น', benefit: 'Calmness +20 (ลดความเครียด)', price: 70, image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=400&h=500', icon: 'moon' },
+            { id: 'dark-mud', name: 'Dark Forest Mud', thaiName: 'โคลนป่าต้องห้าม', category: 'Potion of Awakening', realName: 'Mocha', description: 'การผสมผสานระหว่างกาแฟและโกโก้เข้มข้น เหมือนดินโคลนศักดิ์สิทธิ์ที่อุดมสมบูรณ์ หวานปนขม', benefit: 'Stamina +15 (เติมพลังกาย)', price: 75, image: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=80&w=400&h=500', icon: 'coffee' },
+            { id: 'emerald-guardian', name: 'Emerald Guardian', thaiName: 'ผู้พิทักษ์มรกต', category: 'Elemental Essence', realName: 'Matcha Green Tea', description: 'ใบชาจากยอดดอยที่เอลฟ์ดูแล สีเขียวสว่างดุจอัญมณีมรกต กลิ่นหอมธรรมชาติเน้นๆ', benefit: 'Wisdom +10 (สงบจิตใจ)', price: 80, image: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?auto=format&fit=crop&q=80&w=400&h=500', icon: 'sparkles' },
+            { id: 'dragon-flame', name: "Dragon's Flame", thaiName: 'เพลิงมังกร', category: 'Elemental Essence', realName: 'Thai Tea', description: 'ชาสีส้มแดงร้อนแรงดั่งไฟมังกร รสชาติหวานมัน ดื่มแล้วเลือดสูบฉีด', benefit: 'Strength +10 (กระปรี้กระเปร่า)', price: 60, image: 'https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?auto=format&fit=crop&q=80&w=400&h=500', icon: 'zap' },
+            { id: 'fairy-kiss', name: "Fairy's Kiss", thaiName: 'จุมพิตภูตจิ๋ว', category: 'Elemental Essence', realName: 'Peach Tea', description: 'หอมหวานสดชื่นเหมือนโดนภูตตัวจิ๋วแกล้งจุ๊บแก้ม กลิ่นผลไม้ตลบอบอวล', benefit: 'Charm +15 (สดใส น่ารัก)', price: 65, image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&q=80&w=400&h=500', icon: 'sparkles' },
+            { id: 'earth-spirit', name: 'Earth Spirit Cocoa', thaiName: 'โกโก้วิญญาณปฐพี', category: 'Elemental Essence', realName: 'Rich Cocoa', description: 'โกโก้สีน้ำตาลเข้ม ดั่งพลังแห่งผืนดิน หนักแน่น เข้มข้น ไม่เจือจาง', benefit: 'Defense +10 (อิ่มท้องนาน)', price: 70, image: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&q=80&w=400&h=500', icon: 'coffee' },
+            { id: 'mana-potion', name: 'Mana Potion', thaiName: 'มานาโพชั่น', category: "Alchemist's Special", realName: 'Blue Curacao Soda', description: 'น้ำสีฟ้าเรืองแสง (ใส่กากเพชรทานได้) ซ่าสดชื่น ฟื้นฟูค่ามานาที่เสียไปจากการทำงานหนัก', benefit: 'MP Recovery 100%', price: 85, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&q=80&w=400&h=500', icon: 'zap' },
+            { id: 'health-potion', name: 'Health Potion', thaiName: 'เฮลท์โพชั่น', category: "Alchemist's Special", realName: 'Strawberry Soda', description: 'น้ำสีแดงสดใส ช่วยเยียวยาหัวใจที่อ่อนล้า เติมความหวานอมเปรี้ยวให้ชีวิต', benefit: 'HP Recovery 50%', price: 85, image: 'https://nurturedhomes.com/wp-content/uploads/2025/05/strawberry-soda-10.jpg', icon: 'sparkles' },
+            { id: 'twilight-galaxy', name: 'Twilight Galaxy', thaiName: 'กาแล็กซี่สนธยา', category: "Alchemist's Special", realName: 'Butterfly Pea Lime Juice', description: 'เครื่องดื่มเวทมนตร์ที่เปลี่ยนสีได้ เหมือนท้องฟ้ายามค่ำคืน', benefit: 'Magic +20 (ตื่นตาตื่นใจ)', price: 90, image: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&q=80&w=400&h=500', icon: 'moon' }
+        ];
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        // Particles
+        const particlesContainer = document.getElementById('particles-container');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'absolute w-1 h-1 bg-gold rounded-full animate-float-particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = Math.random() * 100 + '%';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            p.style.animationDuration = (5 + Math.random() * 10) + 's';
+            p.style.opacity = (0.2 + Math.random() * 0.5).toString();
+            particlesContainer.appendChild(p);
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-forest-900/90', 'backdrop-blur-lg', 'border-b', 'border-gold/20', 'py-3');
+                nav.classList.remove('bg-transparent', 'py-6');
+            } else {
+                nav.classList.remove('bg-forest-900/90', 'backdrop-blur-lg', 'border-b', 'border-gold/20', 'py-3');
+                nav.classList.add('bg-transparent', 'py-6');
+            }
+        });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.onclick = () => mobileMenu.classList.remove('hidden');
+        mobileMenuClose.onclick = () => mobileMenu.classList.add('hidden');
+        mobileLinks.forEach(link => link.onclick = () => mobileMenu.classList.add('hidden'));
+
+        // --- MENU RENDERING ---
+        const menuContainer = document.getElementById('menu-container');
+        const categories = ['Potion of Awakening', 'Elemental Essence', "Alchemist's Special"];
         
-        function predictMenu() {
-            const menus = [
-                { name: "Moonlight Mist", desc: "ช่วงนี้คุณดูเครียดๆ รับลาเต้อุ่นๆ ไหม?" },
-                { name: "Ancient Root", desc: "ต้องการสมาธิอ่านหนังสือใช่ไหม? รับอเมริกาโน่เลย" },
-                { name: "Mana Potion", desc: "พลังงานต่ำ? เติมความสดชื่นด้วยโซดาสีฟ้า!" }
-            ];
-            
-            // สุ่มเมนู (จำลอง AI)
-            const randomMenu = menus[Math.floor(Math.random() * menus.length)];
-            
-            const ball = document.getElementById('crystalBall');
-            const content = document.getElementById('oracleContent');
-            
-            // เอฟเฟกต์หมุนติ้ว
-            content.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        categories.forEach(cat => {
+            const section = document.createElement('div');
+            section.className = 'mb-20';
+            section.innerHTML = `
+                <div class="flex items-center gap-4 mb-10">
+                    <h3 class="font-display text-2xl text-gold whitespace-nowrap">${cat}</h3>
+                    <div class="h-[1px] w-full bg-gold/20"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    ${menuItems.filter(i => i.category === cat).map(item => `
+                        <div class="card-forest group overflow-hidden flex flex-col h-full">
+                            <div class="relative h-56 mb-4 overflow-hidden rounded-xl">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" referrerpolicy="no-referrer">
+                                <div class="absolute inset-0 bg-gradient-to-t from-forest-900 to-transparent opacity-60"></div>
+                                <div class="absolute bottom-3 left-3">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="${item.icon}" class="w-3 h-3 text-gold"></i>
+                                        <span class="text-[10px] font-bold tracking-widest uppercase text-parchment/80">${item.name}</span>
+                                    </div>
+                                    <h3 class="font-display text-xl text-gold">${item.thaiName}</h3>
+                                </div>
+                                <div class="absolute top-3 right-3 px-2 py-1 bg-forest-900/80 backdrop-blur-sm rounded-md border border-gold/20">
+                                    <span class="text-[10px] font-bold text-gold uppercase tracking-tighter">${item.realName}</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-xs text-parchment/70 mb-3 leading-relaxed">${item.description}</p>
+                                <div class="p-2 bg-forest-900/50 rounded-lg border border-gold/10 mb-4">
+                                    <p class="text-[10px] font-medium text-gold/90 italic">${item.benefit}</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mt-auto pt-2 border-t border-gold/10">
+                                <span class="font-display text-lg text-gold">${item.price} Gold</span>
+                                <button class="px-3 py-1.5 bg-gold/10 border border-gold/30 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-gold hover:text-forest-900 transition-colors">
+                                    Add to Satchel
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            menuContainer.appendChild(section);
+        });
+        lucide.createIcons();
+
+        // --- THREE.JS SCENES ---
+        
+        // 1. Forest Scene (Hero)
+        const initForestScene = () => {
+            const container = document.getElementById('forest-canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            // Sparks/Particles
+            const sparksGeometry = new THREE.BufferGeometry();
+            const sparksCount = 150;
+            const posArray = new Float32Array(sparksCount * 3);
+            for(let i=0; i<sparksCount*3; i++) posArray[i] = (Math.random() - 0.5) * 10;
+            sparksGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const sparksMaterial = new THREE.PointsMaterial({ size: 0.05, color: 0x00D2FF, transparent: true, opacity: 0.8 });
+            const sparks = new THREE.Points(sparksGeometry, sparksMaterial);
+            scene.add(sparks);
+
+            // Central Glow
+            const light = new THREE.PointLight(0x00D2FF, 2, 10);
+            light.position.set(0, -1, 0);
+            scene.add(light);
+
+            camera.position.z = 5;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                sparks.rotation.y += 0.002;
+                // Move sparks up
+                const positions = sparks.geometry.attributes.position.array;
+                for(let i=1; i<positions.length; i+=3) {
+                    positions[i] += 0.01;
+                    if(positions[i] > 5) positions[i] = -5;
+                }
+                sparks.geometry.attributes.position.needsUpdate = true;
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        };
+
+        // 2. Crystal Ball Scene
+        const initCrystalBall = () => {
+            const container = document.getElementById('crystal-ball-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            const geometry = new THREE.SphereGeometry(1, 64, 64);
+            const material = new THREE.MeshPhysicalMaterial({
+                color: 0xA0E9FF,
+                transmission: 1,
+                thickness: 0.5,
+                roughness: 0,
+                ior: 1.5,
+                clearcoat: 1
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            scene.add(sphere);
+
+            const light = new THREE.PointLight(0xA0E9FF, 2, 10);
+            light.position.set(2, 2, 2);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+            camera.position.z = 3;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                sphere.rotation.y += 0.01;
+                sphere.position.y = Math.sin(Date.now() * 0.002) * 0.1;
+                renderer.render(scene, camera);
+            };
+            animate();
+        };
+
+        initForestScene();
+        initCrystalBall();
+
+        // --- ORACLE LOGIC ---
+        const oracleBtn = document.getElementById('oracle-btn');
+        const crystalBall = document.getElementById('crystal-ball-container');
+        const loader = document.getElementById('oracle-loader');
+        const resultDiv = document.getElementById('oracle-result');
+        const predictionText = document.getElementById('oracle-prediction');
+        const itemName = document.getElementById('oracle-item-name');
+        const itemImg = document.getElementById('oracle-item-img');
+
+        const consultOracle = () => {
+            loader.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
             
             setTimeout(() => {
-                content.innerHTML = `<div class="prediction-text" style="opacity: 1; font-size: 0.8rem;">
-                    <strong>AI แนะนำ:</strong><br>${randomMenu.name}<br>
-                    <span style="font-size: 0.7rem; color: var(--gold);">${randomMenu.desc}</span>
-                </div>`;
-            }, 1000);
-        }
+                const randomIndex = Math.floor(Math.random() * menuItems.length);
+                const item = menuItems[randomIndex];
+                
+                predictionText.innerText = `ดวงชะตาของท่านถูกลิขิตโดยพลังแห่งบรรพกาล... วันนี้ท่านควรลิ้มรส "${item.thaiName}" เพื่อเสริมพลัง ${item.benefit.split('(')[0]}`;
+                itemName.innerText = item.thaiName;
+                itemImg.src = item.image;
+                
+                loader.classList.add('hidden');
+                resultDiv.classList.remove('hidden');
+            }, 1500);
+        };
+
+        oracleBtn.onclick = consultOracle;
+        crystalBall.onclick = consultOracle;
+
     </script>
 </body>
 </html>
